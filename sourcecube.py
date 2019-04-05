@@ -205,7 +205,7 @@ commands = [
 	commands.register(
 		'dragonhax',
 		karma.dragonhax,
-		admin=True, leisure=False
+		admin=False, leisure=False, delete=False
 	),
 
 	(f1984.ip_check, f1984.remove_ip),
