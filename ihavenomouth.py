@@ -7,7 +7,7 @@ import config
 from discord import Forbidden, NotFound
 
 time_reg = (
-	r'^(?:\s|(?:<[^>]*>)|(?: for ([\w\s]+)(?<![0-9\s])))*'
+	r'^(?:\s|(?:<[^>]*>)|(?:(?<= )for ([\w\s]+)(?<![0-9\s])))*'
 	r'(?:([0-9]+):)?([0-9]+)'
 	r'(?:\s|(?:<[^>]*>)|(?: for ([\w\s]+)))*$'
 )
@@ -32,9 +32,9 @@ async def check_all(client):
 	
 	for user_id, (end, server_id, mute_role_id) in list(MUTES.items()):
 		if current_time >= end:
-			server = client.get_server(server_id)
 			try:
-				user = await client.get_user_info(user_id)
+				server = client.get_server(server_id)
+				user = server.get_member(user_id)
 			except NotFound:
 				pass
 			if user is None:

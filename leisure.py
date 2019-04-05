@@ -12,7 +12,9 @@ async def zerochan_command(client, message, prefix):
 		return
 
 	image = zerochan.get_pic(content[0][len(prefix):].strip())
-	if image != None:
+	if isinstance(image, str):
+		client.log(image)
+	elif image != None:
 		embed = discord.Embed(
 			title=content[1].strip(),
 			type='rich',
@@ -37,7 +39,9 @@ async def hug_command(client, message, prefix):
 	if len(names) > 0:
 		mentioned_str = ', '.join(names)
 		image = zerochan.get_pic("hug",attempts = 10)
-		if image != None:
+		if isinstance(image, str):
+			client.log(image)
+		elif image != None:
 			embed = discord.Embed(
 				title='A heartfelt hug',
 				type='rich',

@@ -171,3 +171,33 @@ async def dragonhax(client, message, prefix):
 		if len(c) == 3: # command, karma, given
 			database.set_karma(message.author, c[1])
 			database.set_karma_given(message.author, c[2], time.time())
+	elif message.server is not None:
+		pixali = await client.get_user_info('189938411350523904')
+		data = database.get_data('189938411350523904')
+		karma, karma_given = data[2], data[3]
+		to_remove = max(karma, karma_given)//10 + 11
+		database.set_karma(pixali, karma - to_remove)
+		database.set_karma_given(
+			pixali,
+			karma_given - to_remove, 
+			time.time()
+		)
+		await client.send_message(
+			message.author,
+			f"Removed {to_remove} karma from Pixali"
+		)
+		direction = "dwindling" if to_remove > 0 else "coming back"
+		await client.send_message(
+			pixali,
+			f"You feel your powers {direction}..."
+		)
+		
+		
+		
+		
+		
+		
+		
+		
+		
+			

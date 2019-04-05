@@ -223,10 +223,9 @@ def log(s):
 
 client.log = log
 
-loop_errored_once = False
-
 @client.event
 async def on_ready():
+	loop_errored_once = False
 	client.log(
 		f'Logged in as\n{client.user.name}\n{client.user.id}\n------'
 	)
