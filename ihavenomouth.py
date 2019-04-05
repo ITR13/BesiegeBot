@@ -4,10 +4,12 @@ from karma import get_mentions
 import time
 import config
 
+from discord import Forbidden, NotFound
+
 time_reg = (
-	r'^(?:\s|(?:<[^>]*>))*'
+	r'^(?:\s|(?:<[^>]*>)|(?: for ([\w\s]+)(?<![0-9\s])))*'
 	r'(?:([0-9]+):)?([0-9]+)'
-	r'(?:\s|(?:<[^>]*>))*$'
+	r'(?:\s|(?:<[^>]*>)|(?: for ([\w\s]+)))*$'
 )
 
 MUTES, BANS = {}, {}
@@ -21,6 +23,8 @@ async def add_mute(client, user, duration, server_id, mute_role):
 async def add_ban(client, user, duration, server_id):
 	BANS[user.id] = (time.time()+duration, server_id)
 	await client.ban(user, 0)
+	if user_id in MUTES:
+		del MUTES[user_id]
 
 	
 async def check_all(client):
@@ -29,7 +33,13 @@ async def check_all(client):
 	for user_id, (end, server_id, mute_role_id) in list(MUTES.items()):
 		if current_time >= end:
 			server = client.get_server(server_id)
-			user = server.get_member(user_id)
+			try:
+				user = await client.get_user_info(user_id)
+			except NotFound:
+				pass
+			if user is None:
+				client.log("Failed to find user id {user_id}")
+				continue
 			client.log(f"Unmuting {user.name}")
 			for role in [i for i in user.roles if i.id == mute_role_id]:
 				await client.remove_roles(user, role)
@@ -41,13 +51,21 @@ async def check_all(client):
 		
 	for user_id, (end, server_id) in list(BANS.items()):
 		if current_time >= end:
-			user = await client.get_user_info(user_id)
+			try:
+				user = await client.get_user_info(user_id)
+			except NotFound:
+				pass
+			if user is None:
+				client.log("Failed to find user id {user_id}")
+				continue
 			server = client.get_server(server_id)
 			client.log(f"Unbanning {user.name}")
-			await client.unban(server, user)
+			try:
+				await client.unban(server, user)
+			except Forbidden:
+				client.log(f"Failed to unban {user.name}")
+				
 			del BANS[user_id]
-			if user_id in MUTES:
-				del MUTES[user_id]
 
 async def check_mute(client, message, prefix):
 	await check_all(client)
@@ -88,9 +106,18 @@ async def temp_stop(client, message, prefix, is_ban):
 			"either whitespace or mentions\n"
 		)
 		return
+		
+	reason = m.group(1, 4)
+	if reason[0] is None:
+		if reason[1] is None:
+			reason_string = f"`{reason[0]}`"
+		else:
+			reason_string = f"`{reason[0]}` and `{reason[1]}`"
+	elif reason[1] is None:
+		reason_string = f"`{reason[0]}`"
 	
-	hours = m.group(1)
-	minutes = m.group(2)
+	hours = m.group(2)
+	minutes = m.group(3)
 	hours = 0 if hours is None else int(hours)
 	minutes = 0 if minutes is None else int(minutes)
 	
@@ -134,6 +161,7 @@ async def temp_stop(client, message, prefix, is_ban):
 		return
 	
 	server = message.server
+	not_banned = []
 	if is_ban:
 		invite = await client.create_invite(server, max_uses=1)
 			
@@ -143,15 +171,18 @@ async def temp_stop(client, message, prefix, is_ban):
 				(
 					f"You have been banned on '{server.name}' for {time_string}"
 					f", here is an invite for when it expires: {invite.url}\n"
+					f"The given reason was {reason_string}"
 				)
 			)
-			
-			await add_ban(
-				client, 
-				user, 
-				((days*24+hours)*60+minutes)*60, 
-				server.id
-			)
+			try:
+				await add_ban(
+					client, 
+					user, 
+					((days*24+hours)*60+minutes)*60, 
+					server.id
+				)
+			except Forbidden:
+				not_banned.append(user)
 	else: 
 		mute_role = [
 			role 
@@ -166,12 +197,27 @@ async def temp_stop(client, message, prefix, is_ban):
 				server.id,
 				mute_role
 			)
+			
+			await client.send_message(
+				user, 
+				(
+					f"You have been muted on '{server.name}' for {time_string}."
+					f" The given reason was {reason_string}"
+				)
+			)
 	
-	mentions = [i.name for i in mentions]
+	mentions = [i.name for i in mentions if i not in not_banned]
+	not_banned = [i.name for i in not_banned]
 	
 	await client.send_message(
 		message.channel,
-		f"Users {mentions} {word} for {time_string}"
+		f"Users {mentions} {word} for {time_string}" +
+		("" if len(not_banned) == 0 else f"\nFailed to ban Users {not_banned}")
+	)
+	client.log(
+		f"Users {mentions} {word} for {time_string}.\n" +
+		f"The given reason was {reason_string}" +
+		(f"\nFailed to ban: {not_banned}" if len(not_banned) > 0 else "")
 	)
 	
 	

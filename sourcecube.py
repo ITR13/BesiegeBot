@@ -223,20 +223,36 @@ def log(s):
 
 client.log = log
 
+loop_errored_once = False
+
 @client.event
 async def on_ready():
 	client.log(
 		f'Logged in as\n{client.user.name}\n{client.user.id}\n------'
 	)
 	while not client.exiting:
-		await asyncio.sleep(5)
-		await handle_log(client)
-		lifebuoy.save_if_needed(client)
-		await ihavenomouth.check_all(client)
+		try:
+			await not_exit_loop()
+		except BaseException as e:
+			if loop_errored_once:
+				await asyncio.sleep(30)
+				continue
+			loop_errored_once = True
+			client.log(
+				f'Encountered an exception:\n```'
+				+ traceback.format_exc()
+				+'```'
+			)
 
 	for message, _ in zip(back_log, range(10)):
 		await client.send_message(LOG_CHANNEL, message)
 
+async def not_exit_loop():
+	await asyncio.sleep(5)
+	await handle_log(client)
+	lifebuoy.save_if_needed(client)
+	await ihavenomouth.check_all(client)
+		
 async def handle_log(client):
 	global LOG_CHANNEL
 	global back_log
