@@ -23,11 +23,10 @@ def rebuild_ranks():
 	global ranks_dirty
 	if not ranks_dirty:
 		return
+	
+	# UPDATE karma set karma = -9001
+	# where id = 189938411350523904 and karma > 9000;
 	kcursor.executescript("""
-		UPDATE karma set karma = -9001
-		where id = 189938411350523904 and karma > 9000;
-		
-		
 		DROP TABLE if exists tempranks;
 
 		CREATE TEMP TABLE tempranks AS
