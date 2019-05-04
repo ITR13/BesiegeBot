@@ -39,7 +39,7 @@ async def check_all(client):
 				pass
 			if user is None:
 				client.log(f"Failed to find user id {user_id} <@158620410424852481>")
-				del MUTES[user.id]
+				del MUTES[user_id]
 				continue
 			client.log(f"Unmuting {user.name}")
 			for role in [i for i in user.roles if i.id == mute_role_id]:
@@ -58,7 +58,7 @@ async def check_all(client):
 				pass
 			if user is None:
 				client.log(f"Failed to find user id {user_id} <@158620410424852481>")
-				del BANS[user.id]
+				del BANS[user_id]
 				continue
 			server = client.get_server(server_id)
 			client.log(f"Unbanning {user.name}")
