@@ -7,9 +7,9 @@ import config
 from discord import Forbidden, NotFound
 
 time_reg = (
-	r'^(?:\s|(?:<[^>]*>)|(?:(?<= )for ([\w\s]+)(?<![0-9\s])))*'
+	r'^(?:\s|(?:<[^>]*>)|(?:(?<= )for ([\w\s]+)(?<![0-9\s])(?! for)))*'
 	r'(?:([0-9]+):)?([0-9]+)'
-	r'(?:\s|(?:<[^>]*>)|(?: for ([\w\s]+)))*$'
+	r'(?:\s|(?:<[^>]*>)|(?: for ([\w\s]+)(?! for)))*$'
 )
 
 MUTES, BANS = {}, {}
@@ -23,8 +23,8 @@ async def add_mute(client, user, duration, server_id, mute_role):
 async def add_ban(client, user, duration, server_id):
 	BANS[user.id] = (time.time()+duration, server_id)
 	await client.ban(user, 0)
-	if user_id in MUTES:
-		del MUTES[user_id]
+	if user.id in MUTES:
+		del MUTES[user.id]
 
 	
 async def check_all(client):
@@ -38,7 +38,8 @@ async def check_all(client):
 			except NotFound:
 				pass
 			if user is None:
-				client.log("Failed to find user id {user_id}")
+				client.log(f"Failed to find user id {user_id} <@158620410424852481>")
+				del MUTES[user.id]
 				continue
 			client.log(f"Unmuting {user.name}")
 			for role in [i for i in user.roles if i.id == mute_role_id]:
@@ -56,7 +57,8 @@ async def check_all(client):
 			except NotFound:
 				pass
 			if user is None:
-				client.log("Failed to find user id {user_id}")
+				client.log(f"Failed to find user id {user_id} <@158620410424852481>")
+				del BANS[user.id]
 				continue
 			server = client.get_server(server_id)
 			client.log(f"Unbanning {user.name}")
@@ -103,7 +105,7 @@ async def temp_stop(client, message, prefix, is_ban):
 			message.channel,
 			"Could not extract time from message.\n"+
 			"Correct format is '[H:]m' padded with "+
-			"either whitespace or mentions\n"
+			"either whitespace or mentions or ' for [reason]'\n"
 		)
 		return
 		
