@@ -176,6 +176,13 @@ commands = [
 			'Gives someone (or some people) a hug! So nice~\n\t' +
 			'Just keep in mind you can\'t hug yourself, nor hug anyone outside of #off-topic.' 
 	),
+	commands.register(
+		'rainbow', 
+		leisure.rainbow_command,
+		delete=False,
+		help='\t!rainbow\n' +
+            'Adds or removes a rainbow from the end of your name!'
+	),
 	
 	# Statistic commands
 	commands.register(

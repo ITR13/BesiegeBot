@@ -52,3 +52,16 @@ async def hug_command(client, message, prefix):
 			await client.send_message(message.channel, embed=embed)
 
 			
+
+async def rainbow_command(client, message, prefix):
+    member = message.author
+    nick = member.display_name
+    rainbow = u'🌈'
+    if nick.endswith(rainbow):
+        nick = nick[:-len(rainbow)]
+    else:
+        nick += rainbow
+    
+    await client.change_nickname(member, nick)
+    
+    
