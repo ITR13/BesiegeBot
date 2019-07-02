@@ -22,6 +22,13 @@ karma_matches = [
 	"サンクス",
 	"サンキュ",
 	"さんきゅ"
+	# chinese
+	"謝謝",
+	"謝啦",
+	"感謝",
+	"感恩",
+	# simplified chinese 
+	"谢谢",
 ]
 
 
