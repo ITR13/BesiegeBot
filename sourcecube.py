@@ -169,6 +169,13 @@ commands = [
 			'With multiple tagged users, just shows their current scores and rankings on the leaderboard.'
 	),
 	commands.register(
+		'kwords',
+		karma.k_words,
+		delete=False,
+		help='\t!kwords\n\t' +
+			'Checks what words are currently functional for karma'
+	),
+	commands.register(
 		'hug', 
 		leisure.hug_command,
 		delete=False,

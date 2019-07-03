@@ -16,18 +16,17 @@ karma_matches = [
 	"ありがとう",
 	"ありがと",
 	"有難う",
-	# kansha (gratitude)
-	"感謝",
 	# jingrish 'thank you'
 	"サンクス",
 	"サンキュ",
 	"さんきゅ"
-	# chinese
+	# kansha (gratitude)
+	"感謝",
+	# other chinese
 	"謝謝",
 	"謝啦",
-	"感謝",
 	"感恩",
-	# simplified chinese 
+	# simplified chinese
 	"谢谢",
 ]
 
@@ -64,7 +63,7 @@ async def parse_karma(client, message):
 
 async def top_karma(client, message, prefix):
 	mentions = get_mentions(message, False)
-	
+
 	if len(mentions) == 0:
 		to_show = database.get_top(0, 16)
 	elif len(mentions) == 1:
@@ -78,7 +77,7 @@ async def top_karma(client, message, prefix):
 		to_show = database.get_top(rank-8, 16)
 	else:
 		to_show = database.get_ranks(mentions)
-		
+
 	if len(to_show) == 0:
 		client.log("Top Karma found nothing to show")
 		return
@@ -90,7 +89,7 @@ async def top_karma(client, message, prefix):
 
 	def pad(s):
 		return " "*(maxNameLength-len(s)+1)
-	
+
 	emb = discord.Embed(
 		title=f'Top Karma around rank {to_show[len(to_show)//2][0]}',
 		type='rich',
@@ -178,44 +177,33 @@ async def dragonhax(client, message, prefix):
 		if len(c) == 3: # command, karma, given
 			database.set_karma(message.author, c[1])
 			database.set_karma_given(message.author, c[2], time.time())
-		elif c[1] == 'stopit':
-			itr = await client.get_user_info('158620410424852481')
-			await client.send_message(
-				itr,
-				'Stop it. Get some help.\nhttps://www.youtube.com/watch?v=9Deg7VrpHbM'
-			)
-	
-	# Please don't. Don't make me fiddle with file permissions on the pi
-	# to prevent changes to code. I like my big numbers and I *greatly*
-	# dislike getting spammed by the bot in the middle of the night.
 
-	#elif message.server is not None:
-	#	pixali = await client.get_user_info('189938411350523904')
-	#	data = database.get_data('189938411350523904')
-	#	karma, karma_given = data[2], data[3]
-	#	to_remove = max(karma, karma_given)//10 + 11
-	#	database.set_karma(pixali, karma - to_remove)
-	#	database.set_karma_given(
-	#		pixali,
-	#		karma_given - to_remove, 
-	#		time.time()
-	#	)
-	#	await client.send_message(
-	#		message.author,
-	#		f"Removed {to_remove} karma from Pixali"
-	#	)
-	#	direction = "dwindling" if to_remove > 0 else "coming back"
-	#	await client.send_message(
-	#		pixali,
-	#		f"You feel your powers {direction}..."
-	#	)
-		
-		
-		
-		
-		
-		
-		
-		
-		
-			
+async def k_words(client, message, prefix):
+	maxNameLength = max(len("title"), *map(len, karma_matches))
+
+	def pad(s):
+		return " "*(maxNameLength-len(s)+1)
+
+	title = f" Word{pad('Word')} | Functional "
+
+	emb = discord.Embed(
+		title=f'Status of all forms of thanks',
+		type='rich',
+		description=(
+			"```js\n"
+			+ title + "\n"
+			+ "-"*len(title) + "\n"
+			+ "\n".join([
+				f' {word}{pad(word)} | {"⍟" if has_thanks(" "+word+" ") else "🔴"}'
+				for word
+				in karma_matches
+			])
+			+ "```"
+		)
+	)
+	await client.send_message(
+		message.channel,
+		embed=emb
+	)
+
+
