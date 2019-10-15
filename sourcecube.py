@@ -13,7 +13,6 @@ import karma
 import f1984
 import leisure
 import wisdom
-import globe
 import ihavenomouth
 
 try:
@@ -188,16 +187,9 @@ commands = [
 		leisure.rainbow_command,
 		delete=False,
 		help='\t!rainbow\n' +
-            'Adds or removes a rainbow from the end of your name!'
+			'Adds or removes a rainbow from the end of your name!'
 	),
 	
-	# Statistic commands
-	commands.register(
-		'hot', 
-		globe.generate,
-		delete=False
-	),
-
 	# Some test commands to check that things are actually working
 	commands.register(
 		'testping',
