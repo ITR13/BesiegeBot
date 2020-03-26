@@ -64,7 +64,7 @@ async def remove_ip(client, message):
 votes = {}
 	
 async def vote_mute(client, message, prefix):
-	if not "trusted" in [i.name.lower() for i in message.author.roles]:
+	if not "Scribe" in [i.name.lower() for i in message.author.roles]:
 		client.log(f'Not vote_muting due to lacking permissions')
 		return
 	mentions = get_mentions(message, False)

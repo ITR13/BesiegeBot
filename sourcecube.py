@@ -117,14 +117,14 @@ commands = [
 		f1984.vote_mute,
 		admin=False, leisure=True,
 		delete=False,
-		help='\t!vmute [@User]\n\tVotes to mute a user (3 votes required to mute). Requires the Trusted role.'
+		help='\t!vmute [@User]\n\tVotes to mute a user (3 votes required to mute). Requires the Scribe role.'
 	),
 	commands.register(
 		'vmute',
 		f1984.vote_mute,
 		admin=False, leisure=True,
 		delete=False,
-		help='\t!vmute [@User]\n\tVotes to mute a user (3 votes required to mute). Requires the Trusted role.'
+		help='\t!vmute [@User]\n\tVotes to mute a user (3 votes required to mute). Requires the Scribe role.'
 	),
 	commands.register(
 		'check_mute',
