@@ -65,7 +65,9 @@ async def check_all(client):
 			try:
 				await client.unban(server, user)
 			except Forbidden:
-				client.log(f"Failed to unban {user.name}")
+				client.log(f"Failed to unban {user.name} (Forbidden)")
+			except NotFound:
+				client.log(f"Failed to unban {user.name} (NotFound)")
 				
 			del BANS[user_id]
 
